@@ -1,0 +1,14 @@
+[package]
+name = "password-manager-cs128h"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.3", features = ["derive"] }
+rusqlite = "0.29.0"
+rust-crypto = "0.2.36"
+
+
+[[bin]]
+name = "password-manager-cs128h"
+path = "./src/main.rs"
