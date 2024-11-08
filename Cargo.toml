@@ -10,6 +10,7 @@ rust-crypto = "0.2.36"
 aes-gcm = "0.10.0"
 rand = "0.8.5"
 base64 = "0.21.0"
+addr = "0.15.6"
 
 
 [[bin]]
