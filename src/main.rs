@@ -15,24 +15,35 @@ struct Cli {
 }
 
 fn main() {
-
     let cli = Cli::parse();
-
-    if !cli.in_new_window {
-        // Open a new terminal window
+    if env::var("PASSWORD_MANAGER_NEW_WINDOW").is_ok() || cli.in_new_window {
+        // Run the interactive shell if in the new terminal instance
+        run_interactive_shell();
+    } else {
+        // Open a new terminal window and set the environment variable
         let program_path = env::current_exe().unwrap();
         let program_path_str = program_path.to_str().unwrap();
 
-        Command::new("cmd")
-            .args(&["/c", "start", "cmd", "/k", 
-                    &format!("{} --in-new-window", program_path_str)])
-            .spawn()
-            .expect("Failed to open new terminal window");
-
+        if cfg!(target_os = "windows") {
+            Command::new("cmd")
+                .args(&["/c", "start", "cmd", "/k", 
+                        &format!("set PASSWORD_MANAGER_NEW_WINDOW=1 && {} --in-new-window", program_path_str)])
+                .spawn()
+                .expect("Failed to open new terminal window on Windows");
+        } else if cfg!(target_os = "macos") {
+            Command::new("open")
+                .args(&[
+                    "-a", "Terminal",
+                    program_path_str,
+                    "--args", "--in-new-window"
+                ])
+                .env("PASSWORD_MANAGER_NEW_WINDOW", "1")
+                .spawn()
+                .expect("Failed to open new terminal window on macOS");
+        } else {
+            eprintln!("Unsupported OS for opening a new terminal window.");
+        }
         println!("Opened a new terminal window. This window will close.");
-    } else {
-        // This is the new window, run interactive shell
-        run_interactive_shell();
     }
 }
 
