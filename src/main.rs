@@ -1,4 +1,7 @@
 mod commands;
+mod storage;
+mod utils;
+mod integration;
 use clap::Parser;
 use std::process::Command;
 use std::env;
@@ -12,6 +15,7 @@ struct Cli {
 }
 
 fn main() {
+
     let cli = Cli::parse();
 
     if !cli.in_new_window {
@@ -56,15 +60,7 @@ fn run_interactive_shell() {
     }
 }
 
-/*
-Commands:
-      - `create {username} {password} {domain}`: Save new credentials for a domain
-      - `delete {domain}`: Remove credentials for a specified domain
-      - `update {username} {password} {domain}`: Update existing credentials
-      - `login {domain}`: Retrieve and autofill credentials on the target website
-      - `list`: Display all saved domains and usernames
-      - `exit` or `quit`: Exit the program
-*/
+
 fn process_command(input: &str) -> Result<String, String> {
     let parts: Vec<&str> = input.split_whitespace().collect();
 
@@ -72,6 +68,15 @@ fn process_command(input: &str) -> Result<String, String> {
         return Err("No command entered.".to_string());
     }
 
+    /*
+    Commands:
+      - `create {username} {password} {domain}`: Save new credentials for a domain
+      - `delete {domain}`: Remove credentials for a specified domain
+      - `update {username} {password} {domain}`: Update existing credentials
+      - `login {domain}`: Retrieve and autofill credentials on the target website
+      - `list`: Display all saved domains and usernames
+      - `exit` or `quit`: Exit the program
+    */
     match parts[0] {
         "create" => {
             if parts.len() != 4 {

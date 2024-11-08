@@ -7,6 +7,9 @@ edition = "2021"
 clap = { version = "4.3", features = ["derive"] }
 rusqlite = "0.29.0"
 rust-crypto = "0.2.36"
+aes-gcm = "0.10.0"
+rand = "0.8.5"
+base64 = "0.21.0"
 
 
 [[bin]]

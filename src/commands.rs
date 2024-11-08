@@ -1,5 +1,4 @@
 pub fn create(username: &str, password: &str, domain: &str) -> Result<String, String> {
-    // Implementation here
     Ok("Account created successfully".to_string())
 }
 
