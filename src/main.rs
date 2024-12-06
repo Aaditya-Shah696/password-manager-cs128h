@@ -6,6 +6,12 @@ use clap::Parser;
 use std::process::Command;
 use std::env;
 use std::io::Write;
+use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
+
+
+type Credentials = (String, String);
+type LoginDatabase = LinkedHashMap<String, Credentials>;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -49,6 +55,15 @@ fn main() {
 
 fn run_interactive_shell() {
     println!("Welcome to the password manager. Type 'exit' or 'quit' to end the program.");
+
+    let file_path = "logins.csv";
+    let mut logins = match utils::read_csv(file_path) {
+        Ok(db) => db,
+        Err(e) => {
+            eprintln!("Error reading CSV file: {}. Starting with an empty database.", e);
+            LoginDatabase::new()
+        }
+    };
     
     loop {
         print!("> ");
@@ -64,15 +79,24 @@ fn run_interactive_shell() {
         }
 
         // Process the command here
-        match process_command(input) {
-            Ok(output) => println!("{}", output),
+        match process_command(input, &mut logins) {
+            Ok(output) => {
+                println!("{}", output);
+                // Only save if the command was not "list"
+                if !input.trim().starts_with("list") {
+                    if let Err(e) = utils::write_csv(file_path, &logins) {
+                        eprintln!("Error writing to CSV file: {}", e);
+                    }
+                }
+            },
             Err(e) => eprintln!("Error: {}", e),
         }
+        
     }
 }
 
 
-fn process_command(input: &str) -> Result<String, String> {
+fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, String> {
     let parts: Vec<&str> = input.split_whitespace().collect();
 
     if parts.is_empty() {
@@ -91,37 +115,37 @@ fn process_command(input: &str) -> Result<String, String> {
     match parts[0] {
         "create" => {
             if parts.len() != 4 {
-                Err("Usage: create <username> <password> <domain>".to_string())
+                Err("Usage: create <domain> <username> <password>".to_string())
             } else {
-                commands::create(parts[1], parts[2], parts[3])
+                commands::create(parts[1], parts[2], parts[3], logins)
             }
         },
         "delete" => {
             if parts.len() != 2 {
                 Err("Usage: delete <domain>".to_string())
             } else {
-                commands::delete(parts[1])
+                commands::delete(parts[1], logins)
             }
         },
         "update" => {
             if parts.len() != 4 {
-                Err("Usage: update <username> <password> <domain>".to_string())
+                Err("Usage: update <domain> <username> <password>".to_string())
             } else {
-                commands::update(parts[1], parts[2], parts[3])
+                commands::update(parts[1], parts[2], parts[3], logins)
             }
         },
         "login" => {
             if parts.len() != 2 {
                 Err("Usage: login <domain>".to_string())
             } else {
-                commands::login(parts[1])
+                commands::login(parts[1], logins)
             }
         },
         "list" => {
             if parts.len() != 1 {
                 Err("Usage: list".to_string())
             } else {
-                commands::list()
+                commands::list(logins)
             }
         },
         _ => Err(format!("Unknown command: {}", parts[0])),

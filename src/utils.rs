@@ -3,13 +3,19 @@ use crypto::sha2::Sha256;
 
 use addr::parse_domain_name;
 
+use linked_hash_map::LinkedHashMap;
+use std::error::Error;
+use std::fs::File;
+use csv::{ReaderBuilder, WriterBuilder};
+use crate::LoginDatabase;
+
 pub fn hash_password(password: &str) -> String {
     let mut hasher = Sha256::new();
     hasher.input_str(password);
     hasher.result_str()
 }
 
-fn parse_domain(url: &str) -> Option<String> {
+pub fn parse_domain(url: &str) -> Option<String> {
     let domain = url.trim_start_matches("http://")
                     .trim_start_matches("https://")
                     .trim_start_matches("www.");
@@ -20,4 +26,37 @@ fn parse_domain(url: &str) -> Option<String> {
     parse_domain_name(domain)
         .ok()
         .and_then(|parsed| parsed.root().map(String::from))
+}   
+
+pub fn read_csv(file_path: &str) -> Result<LoginDatabase, Box<dyn Error>> {
+    let mut logins = LinkedHashMap::new();
+    let mut reader = ReaderBuilder::new()
+        .has_headers(false)
+        .from_path(file_path)?;
+
+    for result in reader.records() {
+        let record = result?;
+        if record.len() == 3 {
+            logins.insert(
+                record[0].to_string(),
+                (record[1].to_string(), record[2].to_string()),
+            );
+        }
+    }
+
+    Ok(logins)
+}
+
+pub fn write_csv(file_path: &str, logins: &LoginDatabase) -> Result<(), Box<dyn Error>> {
+    let mut writer = WriterBuilder::new()
+        .has_headers(false)
+        .from_path(file_path)?;
+
+    // Write in the correct order: domain, username, password
+    for (domain, (username, password)) in logins {
+        writer.write_record(&[domain, username, password])?;
+    }
+    writer.flush()?;
+
+    Ok(())
 }
