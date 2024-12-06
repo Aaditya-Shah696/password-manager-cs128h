@@ -1,14 +1,10 @@
 mod commands;
-mod storage;
 mod utils;
-mod integration;
 use clap::Parser;
 use std::process::Command;
 use std::env;
 use std::io::Write;
-use std::collections::HashMap;
 use linked_hash_map::LinkedHashMap;
-
 
 type Credentials = (String, String);
 type LoginDatabase = LinkedHashMap<String, Credentials>;

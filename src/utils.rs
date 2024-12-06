@@ -1,19 +1,9 @@
-use crypto::digest::Digest;
-use crypto::sha2::Sha256;
-
 use addr::parse_domain_name;
 
 use linked_hash_map::LinkedHashMap;
 use std::error::Error;
-use std::fs::File;
 use csv::{ReaderBuilder, WriterBuilder};
 use crate::LoginDatabase;
-
-pub fn hash_password(password: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.input_str(password);
-    hasher.result_str()
-}
 
 pub fn parse_domain(url: &str) -> Option<String> {
     let domain = url.trim_start_matches("http://")
