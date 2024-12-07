@@ -35,7 +35,7 @@ Leverage the `rust-crypto` or `ring` crate for secure encryption and decryption
 
 Password Hashing:
 Hash and securely store the master password using PBKDF2 or Argon2 (via `argon2` crate)
-
+carg
 Data Storage:
 Store data in a local SQLite database or as an encrypted JSON file
 Structure storage with fields like `domain`, `username`, `password`, and timestamps for creation/last update

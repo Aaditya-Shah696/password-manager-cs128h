@@ -3,8 +3,10 @@ mod utils;
 use clap::Parser;
 use std::process::Command;
 use std::env;
+use std::fs;
 use std::io::Write;
 use linked_hash_map::LinkedHashMap;
+use sha256::digest;
 
 type Credentials = (String, String);
 type LoginDatabase = LinkedHashMap<String, Credentials>;
@@ -46,8 +48,25 @@ fn main() {
 }
 
 fn run_interactive_shell() {
-    println!("Welcome to the password manager. Type 'exit' or 'quit' to end the program, or 'help' to see a list of commands");
+    
+    let master_pass = fs::read_to_string("masterpassword.txt")
+        .expect("Should have been able to read the file");
+    
+    loop {
+        println!("Please enter Master Password (It's `password`)");
+        print!("> ");
+        std::io::stdout().flush().unwrap();
 
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input).unwrap();
+
+        if digest(input) != master_pass {
+            println!("Incorrect Password.")
+        } else {
+            break;
+        }
+    }
+    
     let file_path = "logins.csv";
     let mut logins = match utils::read_csv(file_path) {
         Ok(db) => db,
@@ -56,8 +75,9 @@ fn run_interactive_shell() {
             LoginDatabase::new()
         }
     };
-    
+
     loop {
+        println!("Welcome to the password manager. Type 'exit' or 'quit' to end the program, or 'help' to see a list of commands");
         print!("> ");
         std::io::stdout().flush().unwrap();
 

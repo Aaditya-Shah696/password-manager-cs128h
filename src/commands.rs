@@ -14,6 +14,7 @@ pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDa
     logins.insert(parsed_domain.clone(), (username.to_string(), password.to_string()));
     
     match utils::write_csv("logins.csv", logins) {
+        
         Ok(_) => Ok(format!("Account created successfully for {}", parsed_domain)),
         Err(e) => {
             logins.remove(&parsed_domain);
