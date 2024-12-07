@@ -1,5 +1,6 @@
 use crate::LoginDatabase;
 use crate::utils;
+use crate::storage;
 
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -17,7 +18,7 @@ pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDa
     let encrypted_password = utils::encrypt_password(password, &master_key.lock().unwrap());
     logins.insert(parsed_domain.clone(), (username.to_string(), encrypted_password));
     
-    match utils::write_csv("logins.csv", logins) {
+    match storage::write_csv("logins.csv", logins) {
 
         Ok(_) => Ok(format!("Account created successfully for {}", parsed_domain)),
         Err(e) => {
@@ -36,7 +37,7 @@ pub fn delete(domain: &str, logins: &mut LoginDatabase) -> Result<String, String
     }
 
     if logins.remove(&parsed_domain).is_some() {
-        match utils::write_csv("logins.csv", logins) {
+        match storage::write_csv("logins.csv", logins) {
             Ok(_) => Ok(format!("Account for {} deleted successfully", parsed_domain)),
             Err(e) => Err(format!("Failed to delete account: {}", e))
         }
@@ -57,7 +58,7 @@ pub fn update(domain: &str, username: &str, password: &str, logins: &mut LoginDa
         let encrypted_password = utils::encrypt_password(password, &master_key.lock().unwrap());
         logins.insert(parsed_domain.clone(), (username.to_string(), encrypted_password));
         
-        match utils::write_csv("logins.csv", logins) {
+        match storage::write_csv("logins.csv", logins) {
             Ok(_) => Ok(format!("Account updated successfully for {}", parsed_domain)),
             Err(e) => Err(format!("Failed to update account: {}", e))
         }
@@ -128,7 +129,7 @@ pub fn generate(domain: &str, username: &str, length: usize, logins: &mut LoginD
     let encrypted_password = utils::encrypt_password(&password, &master_key.lock().unwrap());
     logins.insert(parsed_domain.clone(), (username.to_string(), encrypted_password));
     
-    match utils::write_csv("logins.csv", logins) {
+    match storage::write_csv("logins.csv", logins) {
         Ok(_) => Ok(format!("Account created successfully for {} with generated password: {}", parsed_domain, password)),
         Err(e) => {
             logins.remove(&parsed_domain);

@@ -1,15 +1,16 @@
 mod commands;
-mod utils;
 mod storage;
+mod utils;
+
 use clap::Parser;
-use std::process::Command;
+use linked_hash_map::LinkedHashMap;
+use sha256::digest;
 use std::env;
 use std::fs;
 use std::io::Write;
-use linked_hash_map::LinkedHashMap;
-use sha256::digest;
-use std::sync::Mutex;
+use std::process::Command;
 use std::sync::Arc;
+use std::sync::Mutex;
 
 type Credentials = (String, String);
 type LoginDatabase = LinkedHashMap<String, Credentials>;
@@ -77,7 +78,7 @@ fn run_interactive_shell() {
     let master_key = Arc::new(Mutex::new(utils::derive_key(&master_password)));
     
     let file_path = "logins.csv";
-    let mut logins = match utils::read_csv(file_path) {
+    let mut logins = match storage::read_csv(file_path) {
         Ok(db) => db,
         Err(e) => {
             eprintln!("Error reading CSV file: {}. Starting with an empty database.", e);
@@ -104,7 +105,7 @@ fn run_interactive_shell() {
                 println!("{}", output);
                 // Only save if the command was not "list"
                 if !input.trim().starts_with("list") {
-                    if let Err(e) = utils::write_csv(file_path, &logins) {
+                    if let Err(e) = storage::write_csv(file_path, &logins) {
                         eprintln!("Error writing to CSV file: {}\n", e);
                     }
                 }
