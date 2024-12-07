@@ -47,8 +47,7 @@ fn main() {
     }
 }
 
-fn run_interactive_shell() {
-    
+fn mp_lock() -> String {
     let master_pass = fs::read_to_string("masterpassword.txt")
         .expect("Should have been able to read the file");
     
@@ -60,12 +59,18 @@ fn run_interactive_shell() {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
 
-        if digest(input) != master_pass {
-            println!("Incorrect Password.")
+        if digest(input.clone()) != master_pass {
+            println!("Incorrect Password.\n")
         } else {
-            break;
+            println!("\nWelcome to the password manager. Type 'exit' or 'quit' to end the program, or 'help' to see a list of commands");
+            return input;
         }
     }
+}
+
+fn run_interactive_shell() {
+
+    let master_password = mp_lock();
     
     let file_path = "logins.csv";
     let mut logins = match utils::read_csv(file_path) {
@@ -77,8 +82,7 @@ fn run_interactive_shell() {
     };
 
     loop {
-        println!("Welcome to the password manager. Type 'exit' or 'quit' to end the program, or 'help' to see a list of commands");
-        print!("> ");
+        print!("\n> ");
         std::io::stdout().flush().unwrap();
 
         let mut input = String::new();
@@ -97,11 +101,11 @@ fn run_interactive_shell() {
                 // Only save if the command was not "list"
                 if !input.trim().starts_with("list") {
                     if let Err(e) = utils::write_csv(file_path, &logins) {
-                        eprintln!("Error writing to CSV file: {}", e);
+                        eprintln!("Error writing to CSV file: {}\n", e);
                     }
                 }
             },
-            Err(e) => eprintln!("Error: {}", e),
+            Err(e) => eprintln!("Error: {}\n", e),
         }
         
     }
@@ -152,6 +156,14 @@ fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, St
                 commands::list(logins)
             }
         },
+        "generate" => {
+            if parts.len() != 4 {
+                Err("Usage: generate <domain> <username> <length>".to_string())
+            } else {
+                let length = parts[3].parse::<usize>().map_err(|_| "Invalid length parameter".to_string())?;
+                commands::generate(parts[1], parts[2], length, logins)
+            }
+        },
         "help" => {
             if parts.len() != 1 {
                 Err("Usage: help".to_string())
@@ -159,6 +171,15 @@ fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, St
                 commands::help()
             }
         },
+        "lock" => {
+            if parts.len() != 1 {
+                Err("Usage: lock".to_string())
+            } else {
+                println!("");
+                mp_lock();
+                Ok(format!(""))
+            }
+        }
         _ => Err(format!("Unknown command: {}", parts[0])),
     }
 }

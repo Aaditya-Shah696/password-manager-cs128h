@@ -1,6 +1,7 @@
 use crate::LoginDatabase;
 use crate::utils;
 
+use rand::{Rng, thread_rng};
 use clipboard::{ClipboardContext, ClipboardProvider};
 
 pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDatabase) -> Result<String, String> {
@@ -14,7 +15,7 @@ pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDa
     logins.insert(parsed_domain.clone(), (username.to_string(), password.to_string()));
     
     match utils::write_csv("logins.csv", logins) {
-        
+
         Ok(_) => Ok(format!("Account created successfully for {}", parsed_domain)),
         Err(e) => {
             logins.remove(&parsed_domain);
@@ -98,14 +99,49 @@ pub fn list(logins: &LoginDatabase) -> Result<String, String> {
     }
 }
 
+pub fn generate(domain: &str, username: &str, length: usize, logins: &mut LoginDatabase) -> Result<String, String> {
+    let parsed_domain = utils::parse_domain(domain)
+        .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
+    
+    if logins.contains_key(&parsed_domain) {
+        return Err(format!("An account for {} already exists", parsed_domain));
+    }
+    
+    let charset: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
+                           abcdefghijklmnopqrstuvwxyz\
+                           0123456789\
+                           !@#$%^&*()_+-=[]{}|;:.<>?";
+    let mut rng = thread_rng();
+    let password: String = (0..length)
+        .map(|_| {
+            let idx = rng.gen_range(0..charset.len());
+            charset[idx] as char
+        })
+        .collect();
+    
+    logins.insert(parsed_domain.clone(), (username.to_string(), password.clone()));
+    
+    match utils::write_csv("logins.csv", logins) {
+        Ok(_) => Ok(format!("Account created successfully for {} with generated password: {}", parsed_domain, password)),
+        Err(e) => {
+            logins.remove(&parsed_domain);
+            Err(format!("Failed to save account: {}", e))
+        }
+    }
+}
+
 pub fn help() -> Result<String, String> {
     Ok(
         "Commands:
       - `create {domain} {username} {password}`: Save new credentials for a domain
       - `delete {domain}`: Remove credentials for a specified domain
       - `update {domain} {username} {password}`: Update existing credentials
+      - `generate {domain} {username} {length}`: Create a new login with a generated password
+
       - `login {domain}`: Retrieve and autofill credentials on the target website
       - `list`: Display all saved domains and usernames
+      
+      - `lock`: Prompts for master password
       - `help`: List all commands 
       - `exit` or `quit`: Exit the program".to_string()
     )
