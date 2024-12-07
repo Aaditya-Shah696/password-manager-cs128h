@@ -31,22 +31,19 @@ CLI Design: ☑️
 
 Secure Storage of Credentials
 
-Encryption:
+Encryption: ☑️
 Use AES-256 encryption with a master password to encrypt credentials
-Leverage the `rust-crypto` or `ring` crate for secure encryption and decryption
+Leverage the `argon2` crate for secure encryption and decryption
 
-Password Hashing: ☑️
+Master-Password Hashing: ☑️
 Hash and securely store the master password using sha256
 
 Data Storage: ☑️
 Store data in an encrypted csv file
-Structure storage with fields like `domain`, `username`, `password`.
 
 Secure Master Key Storage: ☑️
 Prompt for the master password on every use, avoiding caching it in memory for long sessions
 Optionally integrate with system keychain services for enhanced security
-
-Autofill and Interaction with Web Browser
 
 Browser Integration: ❎
 Use the `open` crate to open a browser tab for the provided domain if needed
