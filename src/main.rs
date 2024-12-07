@@ -1,5 +1,6 @@
 mod commands;
 mod utils;
+mod storage;
 use clap::Parser;
 use std::process::Command;
 use std::env;
@@ -7,6 +8,8 @@ use std::fs;
 use std::io::Write;
 use linked_hash_map::LinkedHashMap;
 use sha256::digest;
+use std::sync::Mutex;
+use std::sync::Arc;
 
 type Credentials = (String, String);
 type LoginDatabase = LinkedHashMap<String, Credentials>;
@@ -71,6 +74,7 @@ fn mp_lock() -> String {
 fn run_interactive_shell() {
 
     let master_password = mp_lock();
+    let master_key = Arc::new(Mutex::new(utils::derive_key(&master_password)));
     
     let file_path = "logins.csv";
     let mut logins = match utils::read_csv(file_path) {
@@ -95,7 +99,7 @@ fn run_interactive_shell() {
         }
 
         // Process the command here
-        match process_command(input, &mut logins) {
+        match process_command(input, &mut logins, &master_key) {
             Ok(output) => {
                 println!("{}", output);
                 // Only save if the command was not "list"
@@ -105,14 +109,14 @@ fn run_interactive_shell() {
                     }
                 }
             },
-            Err(e) => eprintln!("Error: {}\n", e),
+            Err(e) => eprintln!("Error: {}", e),
         }
         
     }
 }
 
 
-fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, String> {
+fn process_command(input: &str, logins: &mut LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parts: Vec<&str> = input.split_whitespace().collect();
 
     if parts.is_empty() {
@@ -125,7 +129,7 @@ fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, St
             if parts.len() != 4 {
                 Err("Usage: create <domain> <username> <password>".to_string())
             } else {
-                commands::create(parts[1], parts[2], parts[3], logins)
+                commands::create(parts[1], parts[2], parts[3], logins, master_key)
             }
         },
         "delete" => {
@@ -139,14 +143,14 @@ fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, St
             if parts.len() != 4 {
                 Err("Usage: update <domain> <username> <password>".to_string())
             } else {
-                commands::update(parts[1], parts[2], parts[3], logins)
+                commands::update(parts[1], parts[2], parts[3], logins, master_key)
             }
         },
         "login" => {
             if parts.len() != 2 {
                 Err("Usage: login <domain>".to_string())
             } else {
-                commands::login(parts[1], logins)
+                commands::login(parts[1], logins, master_key)
             }
         },
         "list" => {
@@ -161,7 +165,7 @@ fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, St
                 Err("Usage: generate <domain> <username> <length>".to_string())
             } else {
                 let length = parts[3].parse::<usize>().map_err(|_| "Invalid length parameter".to_string())?;
-                commands::generate(parts[1], parts[2], length, logins)
+                commands::generate(parts[1], parts[2], length, logins, master_key)
             }
         },
         "help" => {

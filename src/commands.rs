@@ -1,10 +1,12 @@
 use crate::LoginDatabase;
 use crate::utils;
 
+use std::sync::Arc;
+use std::sync::Mutex;
 use rand::{Rng, thread_rng};
 use clipboard::{ClipboardContext, ClipboardProvider};
 
-pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDatabase) -> Result<String, String> {
+pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
     
@@ -42,7 +44,7 @@ pub fn delete(domain: &str, logins: &mut LoginDatabase) -> Result<String, String
     }
 }
 
-pub fn update(domain: &str, username: &str, password: &str, logins: &mut LoginDatabase) -> Result<String, String> {
+pub fn update(domain: &str, username: &str, password: &str, logins: &mut LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
     
@@ -62,7 +64,7 @@ pub fn update(domain: &str, username: &str, password: &str, logins: &mut LoginDa
     }
 }
 
-pub fn login(domain: &str, logins: &LoginDatabase) -> Result<String, String> {
+pub fn login(domain: &str, logins: &LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
 
@@ -99,7 +101,7 @@ pub fn list(logins: &LoginDatabase) -> Result<String, String> {
     }
 }
 
-pub fn generate(domain: &str, username: &str, length: usize, logins: &mut LoginDatabase) -> Result<String, String> {
+pub fn generate(domain: &str, username: &str, length: usize, logins: &mut LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
     
