@@ -34,11 +34,7 @@ fn main() {
                 .expect("Failed to open new terminal window on Windows");
         } else if cfg!(target_os = "macos") {
             Command::new("open")
-                .args(&[
-                    "-a", "Terminal",
-                    program_path_str,
-                    "--args", "--in-new-window"
-                ])
+                .args(&["-a", "Terminal",program_path_str,"--args", "--in-new-window"])
                 .env("PASSWORD_MANAGER_NEW_WINDOW", "1")
                 .spawn()
                 .expect("Failed to open new terminal window on macOS");
@@ -96,7 +92,7 @@ fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, St
     let parts: Vec<&str> = input.split_whitespace().collect();
 
     if parts.is_empty() {
-        return Err("No command entered.".to_string());
+        return Ok("".to_string());
     }
 
     
