@@ -38,8 +38,8 @@ Leverage the `rust-crypto` or `ring` crate for secure encryption and decryption
 Password Hashing: ☑️
 Hash and securely store the master password using sha256
 
-Data Storage:
-Store data in a local SQLite database or as an encrypted JSON file
+Data Storage: ☑️
+Store data in an encrypted csv file
 Structure storage with fields like `domain`, `username`, `password`.
 
 Secure Master Key Storage: ☑️

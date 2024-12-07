@@ -13,8 +13,9 @@ pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDa
     if logins.contains_key(&parsed_domain) {
         return Err(format!("An account for {} already exists", parsed_domain));
     }
-    
-    logins.insert(parsed_domain.clone(), (username.to_string(), password.to_string()));
+
+    let encrypted_password = utils::encrypt_password(password, &master_key.lock().unwrap());
+    logins.insert(parsed_domain.clone(), (username.to_string(), encrypted_password));
     
     match utils::write_csv("logins.csv", logins) {
 
@@ -53,7 +54,8 @@ pub fn update(domain: &str, username: &str, password: &str, logins: &mut LoginDa
     }
 
     if logins.contains_key(&parsed_domain) {
-        logins.insert(parsed_domain.clone(), (username.to_string(), password.to_string()));
+        let encrypted_password = utils::encrypt_password(password, &master_key.lock().unwrap());
+        logins.insert(parsed_domain.clone(), (username.to_string(), encrypted_password));
         
         match utils::write_csv("logins.csv", logins) {
             Ok(_) => Ok(format!("Account updated successfully for {}", parsed_domain)),
@@ -73,12 +75,14 @@ pub fn login(domain: &str, logins: &LoginDatabase, master_key: &Arc<Mutex<[u8; 3
     }
 
     if let Some((username, password)) = logins.get(&parsed_domain) {
+        let decrypted_password = utils::decrypt_password(password, &master_key.lock().unwrap());
+
         // Try to get clipboard context
         let mut ctx = ClipboardContext::new()
             .map_err(|e| format!("Failed to access clipboard: {}", e))?;
         
         // Copy username and password to clipboard
-        let credentials = format!("{}\n{}", username, password);
+        let credentials = format!("{}\n{}", username, decrypted_password);
         ctx.set_contents(credentials)
             .map_err(|e| format!("Failed to copy to clipboard: {}", e))?;
             
@@ -120,8 +124,9 @@ pub fn generate(domain: &str, username: &str, length: usize, logins: &mut LoginD
             charset[idx] as char
         })
         .collect();
-    
-    logins.insert(parsed_domain.clone(), (username.to_string(), password.clone()));
+
+    let encrypted_password = utils::encrypt_password(&password, &master_key.lock().unwrap());
+    logins.insert(parsed_domain.clone(), (username.to_string(), encrypted_password));
     
     match utils::write_csv("logins.csv", logins) {
         Ok(_) => Ok(format!("Account created successfully for {} with generated password: {}", parsed_domain, password)),
