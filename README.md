@@ -15,11 +15,12 @@ Core Features
 
 Command Line Interface (CLI)
 Commands:
-      - `create {username} {password} {domain}`: Save new credentials for a domain
+      - `create {domain} {username} {password}`: Save new credentials for a domain
       - `delete {domain}`: Remove credentials for a specified domain
-      - `update {username} {password} {domain}`: Update existing credentials
+      - `update {domain} {username} {password}`: Update existing credentials
       - `login {domain}`: Retrieve and autofill credentials on the target website
       - `list`: Display all saved domains and usernames
+      - `help`: List all commands 
       - `exit` or `quit`: Exit the program
 
 CLI Design:

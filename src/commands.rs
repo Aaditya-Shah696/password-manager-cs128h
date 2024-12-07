@@ -96,3 +96,16 @@ pub fn list(logins: &LoginDatabase) -> Result<String, String> {
         Ok(format!("List of accounts:\n{}", account_list.join("\n")))
     }
 }
+
+pub fn help() -> Result<String, String> {
+    Ok(
+        "Commands:
+      - `create {domain} {username} {password}`: Save new credentials for a domain
+      - `delete {domain}`: Remove credentials for a specified domain
+      - `update {domain} {username} {password}`: Update existing credentials
+      - `login {domain}`: Retrieve and autofill credentials on the target website
+      - `list`: Display all saved domains and usernames
+      - `help`: List all commands 
+      - `exit` or `quit`: Exit the program".to_string()
+    )
+}

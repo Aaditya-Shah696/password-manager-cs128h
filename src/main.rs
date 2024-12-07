@@ -50,7 +50,7 @@ fn main() {
 }
 
 fn run_interactive_shell() {
-    println!("Welcome to the password manager. Type 'exit' or 'quit' to end the program.");
+    println!("Welcome to the password manager. Type 'exit' or 'quit' to end the program, or 'help' to see a list of commands");
 
     let file_path = "logins.csv";
     let mut logins = match utils::read_csv(file_path) {
@@ -99,15 +99,7 @@ fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, St
         return Err("No command entered.".to_string());
     }
 
-    /*
-    Commands:
-      - `create {username} {password} {domain}`: Save new credentials for a domain
-      - `delete {domain}`: Remove credentials for a specified domain
-      - `update {username} {password} {domain}`: Update existing credentials
-      - `login {domain}`: Retrieve and autofill credentials on the target website
-      - `list`: Display all saved domains and usernames
-      - `exit` or `quit`: Exit the program
-    */
+    
     match parts[0] {
         "create" => {
             if parts.len() != 4 {
@@ -142,6 +134,13 @@ fn process_command(input: &str, logins: &mut LoginDatabase) -> Result<String, St
                 Err("Usage: list".to_string())
             } else {
                 commands::list(logins)
+            }
+        },
+        "help" => {
+            if parts.len() != 1 {
+                Err("Usage: help".to_string())
+            } else {
+                commands::help()
             }
         },
         _ => Err(format!("Unknown command: {}", parts[0])),
