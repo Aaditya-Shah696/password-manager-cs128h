@@ -62,7 +62,8 @@ fn mp_lock() -> String {
 
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
-
+        
+        //sha256 hash for master password
         if digest(input.clone()) != master_pass {
             println!("Incorrect Password.\n")
         } else {

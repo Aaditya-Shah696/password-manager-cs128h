@@ -11,6 +11,8 @@ use base64::{Engine as _, engine::general_purpose};
 
 const NONCE_LENGTH: usize = 12;
 
+
+//argon2 salting to turn master password into key
 pub fn derive_key(master_password: &str) -> [u8; 32] {
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
@@ -22,6 +24,7 @@ pub fn derive_key(master_password: &str) -> [u8; 32] {
     key
 }
 
+//Aes256 to encrypt/decrypt password
 pub fn encrypt_password(password: &str, master_key: &[u8; 32]) -> String {
     let key = Key::<Aes256Gcm>::from_slice(master_key);
     let cipher = Aes256Gcm::new(key);
