@@ -1,3 +1,5 @@
+**Note: This program only works on Windows**
+
 Follow these steps to build and run the program:
 
 1. Clone the Repository
