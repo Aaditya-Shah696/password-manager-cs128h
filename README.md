@@ -7,9 +7,8 @@ Project Structure
 Modules:
       - `main.rs`: Entry point, command-line argument handling
       - `commands.rs`: Define commands (login, create, delete, list, update, etc.)
-      - `storage.rs`: Handles data encryption, storage, and retrieval
-      - `integration.rs`: Manages browser/website interaction
-      - `utils.rs`: Utility functions (encryption helpers, domain parsing, etc.)
+      - `storage.rs`: Handles data storage and retrival
+      - `utils.rs`: Utility functions (encryption , domain parsing, etc.)
 
 Core Features
 
@@ -45,11 +44,6 @@ Secure Master Key Storage: ☑️
 Prompt for the master password on every use, avoiding caching it in memory for long sessions
 Optionally integrate with system keychain services for enhanced security
 
-Browser Integration: ❎
-Use the `open` crate to open a browser tab for the provided domain if needed
-Implement a Rust-based HTTP client or integrate with a web extension (optional, for more secure autofill)
-Autofill capabilities could leverage simulated keyboard events (for basic use) or work with WebDriver for cross-browser support
-
 Domain-based Credential Retrieval: ☑️
 
 Parse and standardize domains so the user doesn’t need exact URLs (`example.com` matches `https://example.com/*`)
@@ -60,17 +54,6 @@ Additional Features
 Password Generation: ☑️
 Add a `generate` command to create logins with secure passwords of customizable length
  
-Password Expiry Notifications: ❎
-Store a timestamp when credentials are created/updated
-Notify users if a password has not been updated for a set duration (e.g., 90 days)
-
-Two-Factor Authentication (2FA) Support (optional): ❎
-Enable users to save and retrieve 2FA tokens (e.g., TOTP codes)
-Integrate TOTP generation (using `otpauth` crate) for 2FA
-
-Data Backup and Restore: ❎
-Add commands to export and import encrypted credential backups
-
 Security Features: ☑️
 Implement a command `lock` that requires re-authentication with master key
 Automatic clipboard clearing after a set time when copying passwords
