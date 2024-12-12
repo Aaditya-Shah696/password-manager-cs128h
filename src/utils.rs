@@ -48,7 +48,7 @@ pub fn decrypt_password(encrypted: &str, master_key: &[u8; 32]) -> String {
 }
 
 
-
+//trims domain so that it is simply "domain.end" with no fluff.
 pub fn parse_domain(url: &str) -> Option<String> {
     let domain = url.trim_start_matches("http://")
                     .trim_start_matches("https://")

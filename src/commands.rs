@@ -7,6 +7,7 @@ use std::sync::Mutex;
 use rand::{Rng, thread_rng};
 use clipboard::{ClipboardContext, ClipboardProvider};
 
+//updates logins and csv to include the {domain -> (username,password)}
 pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
@@ -28,6 +29,7 @@ pub fn create(domain: &str, username: &str, password: &str, logins: &mut LoginDa
     }
 }
 
+//deletes {domain->(username,password)} from logins and csv
 pub fn delete(domain: &str, logins: &mut LoginDatabase) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
@@ -46,6 +48,7 @@ pub fn delete(domain: &str, logins: &mut LoginDatabase) -> Result<String, String
     }
 }
 
+//replaces {domain->(username,password)} if exists
 pub fn update(domain: &str, username: &str, password: &str, logins: &mut LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
@@ -67,6 +70,7 @@ pub fn update(domain: &str, username: &str, password: &str, logins: &mut LoginDa
     }
 }
 
+//copies user and decrypted password to clipboard, using master_key as the decryption key.
 pub fn login(domain: &str, logins: &LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
@@ -93,7 +97,7 @@ pub fn login(domain: &str, logins: &LoginDatabase, master_key: &Arc<Mutex<[u8; 3
     }
 }
 
-
+//displays all domains with their corresponding usernames.
 pub fn list(logins: &LoginDatabase) -> Result<String, String> {
     if logins.is_empty() {
         Ok("No accounts stored".to_string())
@@ -106,6 +110,7 @@ pub fn list(logins: &LoginDatabase) -> Result<String, String> {
     }
 }
 
+//creates new {domain->(username,password)} by generating random password, length defined by user.
 pub fn generate(domain: &str, username: &str, length: usize, logins: &mut LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parsed_domain = utils::parse_domain(domain)
         .ok_or_else(|| format!("Invalid domain format: {}", domain))?;
@@ -138,6 +143,7 @@ pub fn generate(domain: &str, username: &str, length: usize, logins: &mut LoginD
     }
 }
 
+//outputs all commands and their usage.
 pub fn help() -> Result<String, String> {
     Ok(
         "Commands:

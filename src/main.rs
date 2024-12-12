@@ -51,6 +51,8 @@ fn main() {
     }
 }
 
+//MP_Lock prevents the user from accessing other commands without master password
+//Once the  master password is correctly inputted, it returns the master password.
 fn mp_lock() -> String {
     let master_pass = fs::read_to_string("masterpassword.txt")
         .expect("Should have been able to read the file");
@@ -73,6 +75,7 @@ fn mp_lock() -> String {
     }
 }
 
+//The main loop that runs the program. 
 fn run_interactive_shell() {
 
     let master_password = mp_lock();
@@ -117,7 +120,7 @@ fn run_interactive_shell() {
     }
 }
 
-
+//Called by the main loop whenever the user presses enter. Checks to see if the commmand exists and calls it
 fn process_command(input: &str, logins: &mut LoginDatabase, master_key: &Arc<Mutex<[u8; 32]>>) -> Result<String, String> {
     let parts: Vec<&str> = input.split_whitespace().collect();
 
