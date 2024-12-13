@@ -6,8 +6,11 @@ Project Structure
 
 Modules:
       - `main.rs`: Entry point, command-line argument handling
+      
       - `commands.rs`: Define commands (login, create, delete, list, update, etc.)
+      
       - `storage.rs`: Handles data storage and retrival
+      
       - `utils.rs`: Utility functions (encryption , domain parsing, etc.)
 
 Core Features
@@ -15,13 +18,21 @@ Core Features
 Command Line Interface (CLI)
 "Commands: ☑️
       - `create {domain} {username} {password}`: Save new credentials for a domain
+      
       - `delete {domain}`: Remove credentials for a specified domain
+      
       - `update {domain} {username} {password}`: Update existing credentials
+      
       - `generate {domain} {username} {length}`: Create a new login with a generated password
+      
       - `login {domain}`: Retrieve and autofill credentials on the target website
+      
       - `list`: Display all saved domains and usernames
+      
       - `lock`: Prompts for master password
+      
       - `help`: List all commands 
+      
       - `exit` or `quit`: Exit the program"
 
 CLI Design: ☑️
