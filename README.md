@@ -5,6 +5,7 @@ Project Outline: Rust CLI Password Manager
 Project Structure
 
 Modules:
+
       - `main.rs`: Entry point, command-line argument handling
       
       - `commands.rs`: Define commands (login, create, delete, list, update, etc.)
@@ -17,6 +18,7 @@ Core Features
 
 Command Line Interface (CLI)
 "Commands: ☑️
+
       - `create {domain} {username} {password}`: Save new credentials for a domain
       
       - `delete {domain}`: Remove credentials for a specified domain
